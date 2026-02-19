@@ -27,6 +27,7 @@ PROJECTS=(
     "../starter_client:60"
     "../starter_lib:60"
     "../starter_app:0"
+    "../starter_app_rn:0"
 )
 
 # Download reusable script from GitHub
