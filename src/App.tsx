@@ -17,9 +17,6 @@ const SitemapPage = lazy(() => import("./pages/SitemapPage"));
 const LanguageRedirect = lazy(
   () => import("./components/layout/LanguageRedirect"),
 );
-const ProtectedRoute = lazy(
-  () => import("./components/layout/ProtectedRoute"),
-);
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-theme-bg-primary">

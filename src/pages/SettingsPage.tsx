@@ -1,9 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { GlobalSettingsPage } from "@sudobility/building_blocks";
 import ScreenContainer from "../components/layout/ScreenContainer";
+import { useTheme } from "@sudobility/components";
 
 export default function SettingsPage() {
   const { t } = useTranslation("common");
+  const { theme, fontSize, setTheme, setFontSize } = useTheme();
 
   return (
     <ScreenContainer>
@@ -11,7 +13,12 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-theme-text-primary mb-6">
           {t("nav.settings")}
         </h1>
-        <GlobalSettingsPage />
+        <GlobalSettingsPage
+          theme={theme}
+          fontSize={fontSize}
+          onThemeChange={setTheme}
+          onFontSizeChange={setFontSize}
+        />
       </div>
     </ScreenContainer>
   );

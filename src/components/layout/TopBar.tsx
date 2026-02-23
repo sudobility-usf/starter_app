@@ -5,8 +5,13 @@ import {
   type MenuItemConfig,
   type AuthActionProps,
 } from "@sudobility/building_blocks";
-import { AuthAction, useAuthStatus } from "@sudobility/auth-components";
+import { AuthAction } from "@sudobility/auth-components";
 import type { ComponentType } from "react";
+import {
+  DocumentTextIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+} from "@heroicons/react/24/outline";
 import { useLocalizedNavigate } from "../../hooks/useLocalizedNavigate";
 import { CONSTANTS, SUPPORTED_LANGUAGES, isLanguageSupported } from "../../config/constants";
 import LocalizedLink from "./LocalizedLink";
@@ -47,9 +52,6 @@ const LinkWrapper = ({
 export default function TopBar() {
   const { t } = useTranslation("common");
   const { navigate, switchLanguage, currentLanguage } = useLocalizedNavigate();
-  const { user } = useAuthStatus();
-
-  const isAuthenticated = !!user;
 
   const languages = useMemo(
     () =>
@@ -66,16 +68,19 @@ export default function TopBar() {
       {
         id: "docs",
         label: t("nav.docs"),
+        icon: DocumentTextIcon,
         href: "/docs",
       },
       {
         id: "histories",
         label: t("nav.histories"),
+        icon: ClockIcon,
         href: "/histories",
       },
       {
         id: "settings",
         label: t("nav.settings"),
+        icon: Cog6ToothIcon,
         href: "/settings",
       },
     ];

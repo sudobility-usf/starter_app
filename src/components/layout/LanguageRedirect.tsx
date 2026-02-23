@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { isLanguageSupported, SUPPORTED_LANGUAGES } from "../../config/constants";
+import { isLanguageSupported } from "../../config/constants";
 
 function detectLanguage(): string {
   // Check localStorage

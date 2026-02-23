@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SharedProtectedRoute } from "@sudobility/components";
+import { ProtectedRoute as SharedProtectedRoute } from "@sudobility/components";
 import { useAuthStatus } from "@sudobility/auth-components";
 
 interface ProtectedRouteProps {

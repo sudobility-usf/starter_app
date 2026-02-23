@@ -1,16 +1,34 @@
-import { useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useCallback, useMemo } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 export function useLocalizedNavigate() {
-  const navigate = useNavigate();
+  const routerNavigate = useNavigate();
   const { lang } = useParams<{ lang: string }>();
+  const location = useLocation();
+  const currentLanguage = lang || "en";
 
-  return useCallback(
+  const navigate = useCallback(
     (path: string) => {
-      const currentLang = lang || "en";
       const cleanPath = path.startsWith("/") ? path : `/${path}`;
-      navigate(`/${currentLang}${cleanPath}`);
+      routerNavigate(`/${currentLanguage}${cleanPath}`);
     },
-    [navigate, lang],
+    [routerNavigate, currentLanguage],
+  );
+
+  const switchLanguage = useCallback(
+    (newLang: string) => {
+      // Replace the current language prefix with the new one
+      const pathWithoutLang = location.pathname.replace(
+        /^\/[a-z]{2}(-[a-z]+)?\/?/,
+        "/",
+      );
+      routerNavigate(`/${newLang}${pathWithoutLang}`);
+    },
+    [routerNavigate, location.pathname],
+  );
+
+  return useMemo(
+    () => ({ navigate, switchLanguage, currentLanguage }),
+    [navigate, switchLanguage, currentLanguage],
   );
 }
