@@ -52,6 +52,3 @@ public/robots.txt
 .cache
 .turbo
 .vercel
-
-# Prevent auto-formatting of index.html
-index.html
