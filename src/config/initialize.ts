@@ -1,6 +1,10 @@
-import { initializeWebApp } from "@sudobility/di_web";
-import { initializeI18n } from "../i18n";
+import { initializeWebApp } from '@sudobility/di_web';
+import { initializeI18n } from '../i18n';
 
+/**
+ * Bootstrap the application by initialising the DI container, Firebase,
+ * and i18n before the React tree mounts. Called once from `main.tsx`.
+ */
 export async function initializeApp(): Promise<void> {
   await initializeWebApp({
     firebaseConfig: {

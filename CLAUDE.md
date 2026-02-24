@@ -30,6 +30,7 @@ src/
 ├── context/
 │   └── ThemeContext.tsx                   # Theme provider
 ├── components/
+│   ├── ErrorBoundary.tsx                 # Error boundary with retry support
 │   ├── layout/
 │   │   ├── TopBar.tsx                    # Navigation bar
 │   │   ├── Footer.tsx                    # Page footer
@@ -42,6 +43,8 @@ src/
 ├── hooks/
 │   ├── useLocalizedNavigate.ts           # Navigate with lang prefix
 │   └── useDocumentLanguage.ts            # Set HTML lang attribute
+├── utils/
+│   └── formatDateTime.ts                 # Locale-aware date/time formatting
 └── pages/
     ├── HomePage.tsx
     ├── LoginPage.tsx
@@ -61,6 +64,7 @@ bun run preview        # Preview production build
 bun run typecheck      # TypeScript check
 bun run lint           # Run ESLint
 bun run format         # Format with Prettier
+bun run verify         # Run typecheck + lint + format:check
 ```
 
 ## Routing
@@ -80,14 +84,14 @@ Uses `@sudobility/building_blocks` for:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `VITE_STARTER_API_URL` | Backend API URL | `http://localhost:3001` |
+| `VITE_STARTER_API_URL` | Backend API URL | `http://localhost:8022` |
 | `VITE_FIREBASE_API_KEY` | Firebase API key | required |
 | `VITE_FIREBASE_AUTH_DOMAIN` | Firebase auth domain | required |
 | `VITE_FIREBASE_PROJECT_ID` | Firebase project ID | required |
 | `VITE_APP_NAME` | Application name | `Starter` |
 | `VITE_APP_DOMAIN` | Application domain | `localhost` |
 
-**Note**: The default API URL in constants is `http://localhost:3001`, which differs from the API server's default port of `8022`. Ensure the env var or constant matches your running API instance.
+**Note**: The default API URL in constants is `http://localhost:8022`, matching the API server's default port.
 
 ## Related Projects
 
@@ -111,7 +115,7 @@ Uses `@sudobility/building_blocks` for shared shell components (TopBar, LoginPag
 
 ## Gotchas
 
-- API URL mismatch: `.env` defaults to `localhost:3001` but the API server (`starter_api`) runs on port `8022` -- always verify `VITE_STARTER_API_URL` matches the running API
+- API URL: `.env` defaults to `localhost:8022` to match the API server (`starter_api`) -- verify `VITE_STARTER_API_URL` matches your running API if using a different port
 - Vite deduplicates React and shared deps in its config -- if you add new shared dependencies, check if they need deduplication
 - All routes MUST be under the `/:lang/` prefix -- routes without the language prefix will not work correctly
 - Firebase configuration requires all `VITE_FIREBASE_*` environment variables to be set; missing any will break authentication
@@ -123,3 +127,4 @@ Uses `@sudobility/building_blocks` for shared shell components (TopBar, LoginPag
 - There is no test suite currently -- the project relies on TypeScript type checking and manual testing
 - Linting: `bun run lint`
 - Format checking: `bun run format`
+- Full verification: `bun run verify` (runs typecheck + lint + format:check)

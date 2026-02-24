@@ -1,16 +1,21 @@
-import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useAuthStatus } from "@sudobility/auth-components";
-import { getFirebaseAuth } from "@sudobility/auth_lib";
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuthStatus } from '@sudobility/auth-components';
+import { getFirebaseAuth } from '@sudobility/auth_lib';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-} from "firebase/auth";
-import { LoginPage as LoginPageComponent } from "@sudobility/building_blocks";
-import { CONSTANTS } from "../config/constants";
+} from 'firebase/auth';
+import { LoginPage as LoginPageComponent } from '@sudobility/building_blocks';
+import { CONSTANTS } from '../config/constants';
 
+/**
+ * Authentication page supporting email/password sign-in, sign-up,
+ * and Google OAuth. Automatically redirects authenticated users
+ * to the histories page.
+ */
 export default function LoginPage() {
   const { user, loading } = useAuthStatus();
   const navigate = useNavigate();
@@ -19,14 +24,18 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate(`/${lang || "en"}/histories`, { replace: true });
+      navigate(`/${lang || 'en'}/histories`, { replace: true });
     }
   }, [user, loading, navigate, lang]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-theme-bg-primary">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div
+          role="status"
+          aria-label="Loading authentication"
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+        />
       </div>
     );
   }
@@ -34,7 +43,9 @@ export default function LoginPage() {
   if (!auth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-theme-bg-primary">
-        <p className="text-red-600">Firebase not configured</p>
+        <p role="alert" className="text-red-600">
+          Firebase not configured
+        </p>
       </div>
     );
   }
@@ -52,9 +63,7 @@ export default function LoginPage() {
       onGoogleSignIn={async () => {
         await signInWithPopup(auth, new GoogleAuthProvider());
       }}
-      onSuccess={() =>
-        navigate(`/${lang || "en"}/histories`, { replace: true })
-      }
+      onSuccess={() => navigate(`/${lang || 'en'}/histories`, { replace: true })}
     />
   );
 }
