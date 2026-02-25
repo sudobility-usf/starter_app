@@ -4,6 +4,7 @@ import {
   AppFooterForHomePage,
   type FooterLinkSection,
 } from '@sudobility/building_blocks';
+import { CONSTANTS } from '../../config/constants';
 import LocalizedLink from './LocalizedLink';
 
 interface FooterProps {
@@ -33,7 +34,7 @@ export default function Footer({ variant = 'compact' }: FooterProps) {
       <AppFooter
         version={__APP_VERSION__}
         copyrightYear={currentYear}
-        companyName={t('app.name')}
+        companyName={CONSTANTS.COMPANY_NAME}
         companyUrl="/"
         links={[
           { label: t('nav.docs'), href: '/docs' },
@@ -68,7 +69,7 @@ export default function Footer({ variant = 'compact' }: FooterProps) {
       linkSections={linkSections}
       version={__APP_VERSION__}
       copyrightYear={currentYear}
-      companyName={t('app.name')}
+      companyName={CONSTANTS.COMPANY_NAME}
       companyUrl="/"
       description={t('app.tagline')}
       LinkComponent={LinkWrapper}
