@@ -11,7 +11,7 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_MEASUREMENT_ID: string;
 
   // API
-  readonly VITE_STARTER_API_URL: string;
+  readonly VITE_API_URL: string;
 
   // Branding
   readonly VITE_APP_NAME: string;
