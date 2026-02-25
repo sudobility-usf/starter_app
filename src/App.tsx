@@ -1,7 +1,7 @@
 import { Suspense, lazy, type ReactNode } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { SudobilityAppWithFirebaseAuth } from '@sudobility/building_blocks/firebase';
-import { LanguageValidator } from '@sudobility/components';
+import { LanguageValidator, PerformancePanel } from '@sudobility/components';
 import { isLanguageSupported, CONSTANTS } from './config/constants';
 import i18n from './i18n';
 import { useDocumentLanguage } from './hooks/useDocumentLanguage';
@@ -34,6 +34,16 @@ const LoadingFallback = () => (
 function DocumentLanguageSync({ children }: { children: ReactNode }) {
   useDocumentLanguage();
   return <>{children}</>;
+}
+
+// Stable reference to prevent infinite re-renders
+const PERFORMANCE_API_PATTERNS = ['/api/'];
+
+function PerformancePanelComponent() {
+  if (import.meta.env.VITE_SHOW_PERFORMANCE_MONITOR !== 'true') {
+    return null;
+  }
+  return <PerformancePanel enabled={true} position="bottom-right" apiPatterns={PERFORMANCE_API_PATTERNS} />;
 }
 
 function AppRoutes() {
@@ -78,6 +88,7 @@ function AppRoutes() {
             </Route>
             <Route path="*" element={<LanguageRedirect />} />
           </Routes>
+          <PerformancePanelComponent />
         </Suspense>
       </ErrorBoundary>
     </DocumentLanguageSync>
