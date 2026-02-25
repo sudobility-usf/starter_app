@@ -1,36 +1,78 @@
 import { useTranslation } from 'react-i18next';
+import {
+  AppFooter,
+  AppFooterForHomePage,
+  type FooterLinkSection,
+} from '@sudobility/building_blocks';
 import LocalizedLink from './LocalizedLink';
 
-/** Global page footer with navigation links and copyright notice. */
-export default function Footer() {
-  const { t } = useTranslation('common');
+interface FooterProps {
+  variant?: 'full' | 'compact';
+}
+
+const LinkWrapper = ({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <LocalizedLink to={href} className={className}>
+    {children}
+  </LocalizedLink>
+);
+
+export default function Footer({ variant = 'compact' }: FooterProps) {
+  const { t } = useTranslation();
+  const currentYear = String(new Date().getFullYear());
+
+  if (variant === 'compact') {
+    return (
+      <AppFooter
+        version={__APP_VERSION__}
+        copyrightYear={currentYear}
+        companyName={t('app.name')}
+        companyUrl="/"
+        links={[
+          { label: t('nav.docs'), href: '/docs' },
+          { label: t('nav.sitemap'), href: '/sitemap' },
+        ]}
+        LinkComponent={LinkWrapper}
+        sticky
+      />
+    );
+  }
+
+  const linkSections: FooterLinkSection[] = [
+    {
+      title: t('nav.docs'),
+      links: [{ label: t('docs.title'), href: '/docs' }],
+    },
+    {
+      title: t('nav.histories'),
+      links: [{ label: t('histories.title'), href: '/histories' }],
+    },
+    {
+      title: t('nav.settings'),
+      links: [{ label: t('nav.settings'), href: '/settings' }],
+    },
+  ];
 
   return (
-    <footer className="border-t border-theme-border bg-theme-bg-secondary py-8">
-      <div className="container-app px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <nav
-            aria-label="Footer navigation"
-            className="flex gap-6 text-sm text-theme-text-secondary"
-          >
-            <LocalizedLink to="/" className="hover:text-theme-text-primary">
-              {t('nav.home')}
-            </LocalizedLink>
-            <LocalizedLink to="/docs" className="hover:text-theme-text-primary">
-              {t('nav.docs')}
-            </LocalizedLink>
-            <LocalizedLink to="/settings" className="hover:text-theme-text-primary">
-              {t('nav.settings')}
-            </LocalizedLink>
-            <LocalizedLink to="/sitemap" className="hover:text-theme-text-primary">
-              {t('nav.sitemap')}
-            </LocalizedLink>
-          </nav>
-          <p className="text-sm text-theme-text-tertiary">
-            &copy; {new Date().getFullYear()} Sudobility. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
+    <AppFooterForHomePage
+      logo={{
+        appName: t('app.name'),
+      }}
+      linkSections={linkSections}
+      version={__APP_VERSION__}
+      copyrightYear={currentYear}
+      companyName={t('app.name')}
+      companyUrl="/"
+      description={t('app.tagline')}
+      LinkComponent={LinkWrapper}
+      gridColumns={3}
+    />
   );
 }

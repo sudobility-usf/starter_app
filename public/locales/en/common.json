@@ -1,4 +1,18 @@
 {
+  "app": {
+    "name": "Starter",
+    "tagline": "A template project demonstrating the Sudobility architecture pattern."
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "docs": "Documentation",
+    "histories": "Histories",
+    "settings": "Settings",
+    "sitemap": "Sitemap",
+    "login": "Log In",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
   "nav": {
     "home": "Home",
     "docs": "Documentation",
