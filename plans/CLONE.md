@@ -23,14 +23,15 @@ Standalone bash script in the scripts directory.
 
 1. Prompt for **app name** (e.g., "Cravings")
 2. Derive `APP_LOWER` = lowercase, non-alphanumeric removed (e.g., "cravings")
-3. Confirm with user before proceeding
+3. Prompt for **target directory** (defaults to current dir)
+4. Confirm with user before proceeding
 
 ### What it does for each of the 6 projects
 
 For each `starter_{suffix}` project:
 
-1. **Copy directory** — rsync excluding `.git/`, `node_modules/`, `dist/`, `build/`
-2. **Init fresh git repo** — `git init` in the new directory
+1. **Clone from GitHub** — `git clone --depth 1 --branch main` from `git@github.com:sudobility-usf/starter_{suffix}.git`
+2. **Init fresh git repo** — remove `.git`, `git init` in the new directory
 3. **Rename package name** in `package.json`:
    - `@sudobility/starter_{suffix}` → `@sudobility/{app_lower}_{suffix}`
    - `starter_{suffix}` → `{app_lower}_{suffix}` (for private packages like api, app_rn)

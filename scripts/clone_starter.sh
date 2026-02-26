@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# clone_starter.sh - Clone all 6 starter projects to a new app
+# clone_starter.sh - Clone all 6 starter projects from GitHub to a new app
 #
 # Usage:
 #   ./clone_starter.sh
 #   ./clone_starter.sh "Cravings"
 #
-# This script copies the 6 starter projects (types, api, client, lib, app, app_rn)
-# into new directories with the given app name, and updates all package names,
-# imports, and references accordingly.
+# This script clones the 6 starter repos from GitHub (latest main branch),
+# renames them to the new app name, and updates all package names, imports,
+# and references accordingly.
 #
 # Prerequisites:
-#   - All 6 starter_* directories must exist as siblings
 #   - git must be installed
+#   - SSH access to github.com:sudobility-usf/*
 
 set -euo pipefail
 
@@ -20,8 +20,8 @@ set -euo pipefail
 # Configuration
 # ============================================================================
 
+GITHUB_ORG="sudobility-usf"
 SUFFIXES=("types" "api" "client" "lib" "app" "app_rn")
-EXCLUDE_DIRS=(".git" "node_modules" "dist" "build" ".turbo" ".cache")
 
 # ============================================================================
 # Functions
@@ -48,20 +48,36 @@ prompt_app_name() {
     fi
 }
 
+prompt_target_dir() {
+    read -rp "Target directory [$(pwd)]: " TARGET_DIR
+    TARGET_DIR="${TARGET_DIR:-$(pwd)}"
+
+    # Expand ~ if used
+    TARGET_DIR="${TARGET_DIR/#\~/$HOME}"
+
+    if [ ! -d "$TARGET_DIR" ]; then
+        echo "Error: Directory $TARGET_DIR does not exist."
+        exit 1
+    fi
+
+    TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+}
+
 confirm() {
     echo ""
     echo "=== Clone Configuration ==="
     echo "  App Name:     $APP_NAME"
     echo "  Project Name: $APP_LOWER"
+    echo "  Target Dir:   $TARGET_DIR"
     echo ""
-    echo "  Will create:"
+    echo "  Will clone from GitHub and create:"
     for suffix in "${SUFFIXES[@]}"; do
-        echo "    ${APP_LOWER}_${suffix}/"
+        echo "    ${TARGET_DIR}/${APP_LOWER}_${suffix}/"
     done
     echo ""
-    echo "  From:"
+    echo "  Source repos:"
     for suffix in "${SUFFIXES[@]}"; do
-        echo "    starter_${suffix}/"
+        echo "    git@github.com:${GITHUB_ORG}/starter_${suffix}.git"
     done
     echo ""
     read -rp "Proceed? [y/N] " answer
@@ -71,30 +87,21 @@ confirm() {
     fi
 }
 
-copy_project() {
+clone_project() {
     local suffix="$1"
-    local src="starter_${suffix}"
-    local dst="${APP_LOWER}_${suffix}"
-
-    if [ ! -d "$src" ]; then
-        echo "⚠️  Source directory $src not found, skipping"
-        return 1
-    fi
+    local repo="git@github.com:${GITHUB_ORG}/starter_${suffix}.git"
+    local dst="${TARGET_DIR}/${APP_LOWER}_${suffix}"
 
     if [ -d "$dst" ]; then
         echo "⚠️  Destination directory $dst already exists, skipping"
         return 1
     fi
 
-    echo "📁 Copying $src → $dst"
+    echo "📥 Cloning starter_${suffix} → ${APP_LOWER}_${suffix}"
+    git clone --depth 1 --branch main "$repo" "$dst" -q
 
-    # Build rsync exclude args
-    local exclude_args=()
-    for dir in "${EXCLUDE_DIRS[@]}"; do
-        exclude_args+=("--exclude=$dir")
-    done
-
-    rsync -a "${exclude_args[@]}" "$src/" "$dst/"
+    # Remove the .git directory and reinitialize fresh
+    rm -rf "$dst/.git"
 }
 
 rename_in_file() {
@@ -127,13 +134,13 @@ rename_in_all_sources() {
 
 process_project() {
     local suffix="$1"
-    local dst="${APP_LOWER}_${suffix}"
+    local dst="${TARGET_DIR}/${APP_LOWER}_${suffix}"
 
     if [ ! -d "$dst" ]; then
         return
     fi
 
-    echo "🔧 Processing $dst"
+    echo "🔧 Processing ${APP_LOWER}_${suffix}"
 
     # --- package.json ---
     if [ -f "$dst/package.json" ]; then
@@ -168,13 +175,13 @@ process_project() {
 }
 
 process_api_specific() {
-    local dst="${APP_LOWER}_api"
+    local dst="${TARGET_DIR}/${APP_LOWER}_api"
 
     if [ ! -d "$dst" ]; then
         return
     fi
 
-    echo "🔧 Processing API-specific files in $dst"
+    echo "🔧 Processing API-specific files in ${APP_LOWER}_api"
 
     # Rename PostgreSQL schema name
     if [ -f "$dst/src/db/schema.ts" ]; then
@@ -193,13 +200,13 @@ process_api_specific() {
 }
 
 process_app_specific() {
-    local dst="${APP_LOWER}_app"
+    local dst="${TARGET_DIR}/${APP_LOWER}_app"
 
     if [ ! -d "$dst" ]; then
         return
     fi
 
-    echo "🔧 Processing App-specific files in $dst"
+    echo "🔧 Processing App-specific files in ${APP_LOWER}_app"
 
     # Update push_all.sh
     if [ -f "$dst/scripts/push_all.sh" ]; then
@@ -208,18 +215,22 @@ process_app_specific() {
         done
     fi
 
+    # Remove the clone script itself from the new project
+    rm -f "$dst/scripts/clone_starter.sh"
+    rm -f "$dst/plans/CLONE.md"
+
     # Generate blank .env from .env.example
     generate_blank_env "$dst"
 }
 
 process_app_rn_specific() {
-    local dst="${APP_LOWER}_app_rn"
+    local dst="${TARGET_DIR}/${APP_LOWER}_app_rn"
 
     if [ ! -d "$dst" ]; then
         return
     fi
 
-    echo "🔧 Processing React Native-specific files in $dst"
+    echo "🔧 Processing React Native-specific files in ${APP_LOWER}_app_rn"
 
     # Update app.json
     if [ -f "$dst/app.json" ]; then
@@ -281,7 +292,7 @@ init_git_repo() {
         return
     fi
 
-    echo "  🔀 Initializing git repo in $dst"
+    echo "  🔀 Initializing git repo in $(basename "$dst")"
     (
         cd "$dst"
         git init -q
@@ -295,38 +306,22 @@ init_git_repo() {
 # ============================================================================
 
 main() {
-    # Determine the base directory (where starter projects live)
-    # The script should be run from the parent directory of all starter_* projects
-    # or we detect it based on the script location
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-    # Try to find starter projects relative to the script
-    # Script is at starter_app/plans/clone_starter.sh, so base is ../../
-    BASE_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-
-    # Verify starter projects exist
-    if [ ! -d "$BASE_DIR/starter_types" ]; then
-        echo "Error: Cannot find starter_types in $BASE_DIR"
-        echo "Make sure all starter_* projects are in the same parent directory."
-        exit 1
-    fi
-
-    cd "$BASE_DIR"
-
     echo "🚀 Starter Project Cloner"
     echo "========================="
-    echo "Base directory: $BASE_DIR"
 
     # Get app name
     prompt_app_name "${1:-}"
+
+    # Get target directory
+    prompt_target_dir
 
     # Confirm
     confirm
 
     echo ""
-    echo "=== Step 1: Copying projects ==="
+    echo "=== Step 1: Cloning from GitHub ==="
     for suffix in "${SUFFIXES[@]}"; do
-        copy_project "$suffix"
+        clone_project "$suffix"
     done
 
     echo ""
@@ -344,11 +339,11 @@ main() {
     echo ""
     echo "=== Step 4: Initializing git repos ==="
     for suffix in "${SUFFIXES[@]}"; do
-        init_git_repo "${APP_LOWER}_${suffix}"
+        init_git_repo "${TARGET_DIR}/${APP_LOWER}_${suffix}"
     done
 
     echo ""
-    echo "✨ Done! Created ${#SUFFIXES[@]} projects:"
+    echo "✨ Done! Created ${#SUFFIXES[@]} projects in ${TARGET_DIR}:"
     for suffix in "${SUFFIXES[@]}"; do
         echo "  ✅ ${APP_LOWER}_${suffix}/"
     done
