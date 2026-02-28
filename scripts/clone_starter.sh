@@ -93,8 +93,13 @@ clone_project() {
     local dst="${TARGET_DIR}/${APP_LOWER}_${suffix}"
 
     if [ -d "$dst" ]; then
-        echo "⚠️  Destination directory $dst already exists, skipping"
-        return 1
+        read -rp "⚠️  Directory $dst already exists. Overwrite? [y/N] " overwrite
+        if [[ "$overwrite" =~ ^[Yy]$ ]]; then
+            rm -rf "$dst"
+        else
+            echo "  Skipping ${APP_LOWER}_${suffix}"
+            return 1
+        fi
     fi
 
     echo "📥 Cloning starter_${suffix} → ${APP_LOWER}_${suffix}"
@@ -187,6 +192,12 @@ process_api_specific() {
     if [ -f "$dst/src/db/schema.ts" ]; then
         rename_in_file "$dst/src/db/schema.ts" "pgSchema(\"starter\")" "pgSchema(\"${APP_LOWER}\")"
         rename_in_file "$dst/src/db/schema.ts" "starter_histories_user_idx" "${APP_LOWER}_histories_user_idx"
+    fi
+
+    # Rename schema name in test
+    if [ -f "$dst/src/db/schema.test.ts" ]; then
+        rename_in_file "$dst/src/db/schema.test.ts" "\"starter\"" "\"${APP_LOWER}\""
+        rename_in_file "$dst/src/db/schema.test.ts" "'starter'" "'${APP_LOWER}'"
     fi
 
     # Rename env var references in .env.example
