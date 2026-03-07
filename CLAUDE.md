@@ -64,7 +64,7 @@ bun run preview        # Preview production build
 bun run typecheck      # TypeScript check
 bun run lint           # Run ESLint
 bun run format         # Format with Prettier
-bun run verify         # Run typecheck + lint + format:check
+bun run verify         # Run typecheck + lint + format:check (no test suite; relies on type checking)
 ```
 
 ## Routing
@@ -98,7 +98,7 @@ Uses `@sudobility/building_blocks` for:
 - **starter_types** — Shared type definitions; imported transitively via starter_client
 - **starter_client** — API client SDK with TanStack Query hooks; provides data fetching layer
 - **starter_lib** — Business logic library with `useHistoriesManager` hook; primary integration point for this app
-- **starter_api** — Backend server that this app communicates with (watch the port mismatch!)
+- **starter_api** — Backend server that this app communicates with (both default to port 8022)
 - **starter_app_rn** — React Native counterpart of this web app; shares starter_client, starter_lib, and starter_types
 
 Uses `@sudobility/building_blocks` for shared shell components (TopBar, LoginPage, SettingsPage, SudobilityAppWithFirebaseAuth).
@@ -120,11 +120,3 @@ Uses `@sudobility/building_blocks` for shared shell components (TopBar, LoginPag
 - All routes MUST be under the `/:lang/` prefix -- routes without the language prefix will not work correctly
 - Firebase configuration requires all `VITE_FIREBASE_*` environment variables to be set; missing any will break authentication
 - `@sudobility/building_blocks` provides shared UI components -- check there before creating duplicate components
-
-## Testing
-
-- Run type checking: `bun run typecheck`
-- There is no test suite currently -- the project relies on TypeScript type checking and manual testing
-- Linting: `bun run lint`
-- Format checking: `bun run format`
-- Full verification: `bun run verify` (runs typecheck + lint + format:check)
